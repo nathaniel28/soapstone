@@ -421,8 +421,22 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 	case "/erase":
-		// TODO
-		w.WriteHeader(http.StatusNotImplemented)
+		query := r.URL.Query()
+		msgId, err := asUint[uint32](query.Get("id"))
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		usrId, status := h.authenticateRequest(r)
+		if status != http.StatusOK {
+			w.WriteHeader(status)
+			return
+		}
+		_, err = h.eraseMessage.Exec(msgId, usrId)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 	case "/vote":
 		// TODO vote on a message
 		//tx, err := h.db.Begin()
