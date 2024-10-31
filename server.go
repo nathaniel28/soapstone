@@ -432,8 +432,13 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(status)
 			return
 		}
-		_, err = h.eraseMessage.Exec(msgId, usrId)
+		res, err := h.eraseMessage.Exec(msgId, usrId)
 		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		cnt, err := res.RowsAffected()
+		if err != nil || cnt != 1 {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
