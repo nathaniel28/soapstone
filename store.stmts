@@ -1,6 +1,7 @@
 createUsr "INSERT INTO users (name, hash) VALUES (?, ?);"
 queryUsr "SELECT id, hash FROM users WHERE name = ?;"
 createMessage "INSERT INTO messages (userid, room, x, y, template1, word1, conjunction, template2, word2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);"
+eraseMessage "DELETE FROM messages WHERE id = ? AND userid = ?;"
 queryMessagesByRoom "SELECT id, likes, dislikes, room, x, y, word1, word2, template1, template2, conjunction FROM messages WHERE room = ? AND birth >= ? LIMIT 4096;"
 queryMessagesByUsr "SELECT id, likes, dislikes, room, x, y, word1, word2, template1, template2, conjunction FROM messages WHERE userid = ?;"
 countMessagesFromUsr "SELECT COUNT(*) FROM messages WHERE userid = ?;"

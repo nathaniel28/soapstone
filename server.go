@@ -47,8 +47,9 @@ type handler struct {
 	handlerStmts
 	db *sql.DB
 
-	ipLimiter    Limiter
-	loginLimiter Limiter
+	ipLimiter     Limiter
+	loginLimiter  Limiter
+	newUsrLimiter Limiter
 
 	table []byte
 
@@ -87,10 +88,6 @@ func newHandler(name string) (res *handler, err error) {
 	}
 	h.tdiff = dbTime.Sub(serverTime)
 
-	// TODO sync Go's time with the database time
-	// they're like 8 hours off by default, and that number
-	// probably depends on a lot of things
-
 	h.ipLimiter = Limiter{
 		MaxEntries: 2048,
 		Burst:      20,
@@ -100,7 +97,13 @@ func newHandler(name string) (res *handler, err error) {
 	h.loginLimiter = Limiter{
 		MaxEntries: 2048,
 		Burst:      2,
-		Reset:      10 * time.Second,
+		Reset:      30 * time.Second,
+	}
+
+	h.newUsrLimiter = Limiter{
+		MaxEntries: 64,
+		Burst:      2,
+		Reset:      120 * time.Second,
 	}
 
 	var b bytes.Buffer
@@ -212,6 +215,23 @@ func (h *handler) authenticateRequest(r *http.Request) (userid uint32, status in
 	return id, http.StatusOK
 }
 
+func sendMessages(rows *sql.Rows, dst http.ResponseWriter) {
+	var msg message
+	for safety := 0; safety < 5000; safety++ {
+		// "Every call to Rows.Scan, even the first one,
+		// must be preceded by a call to Rows.Next."
+		if !rows.Next() {
+			break
+		}
+		msg.scan(rows)
+		err := binary.Write(dst, binary.LittleEndian, &msg)
+		if err != nil {
+			dst.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
 var encodingOutOfBounds = errors.New("code does not exist")
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -230,8 +250,9 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if pos == -1 {
 		pos = len(r.RemoteAddr)
 	}
+	trimmedIP := r.RemoteAddr[:pos]
 
-	if h.ipLimiter.Block(r.RemoteAddr[:pos]) {
+	if h.ipLimiter.Block(trimmedIP) {
 		w.WriteHeader(http.StatusTooManyRequests)
 		return
 	}
@@ -259,32 +280,27 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			defer rows.Close()
 		}
 		if err != nil {
-			log.Printf("message query with '%v' '%v' failed\n", room, age)
+			log.Printf("message query with room='%v' age='%v' failed\n", room, age)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		var msg message
-		for safety := 0; safety < 5000; safety++ {
-			// "Every call to Rows.Scan, even the first one,
-			// must be preceded by a call to Rows.Next."
-			if !rows.Next() {
-				break
-			}
-			msg.scan(rows)
-			err = binary.Write(w, binary.LittleEndian, &msg)
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-		}
+		sendMessages(rows, w)
 	case "/mine":
-		// TODO
-		/*id, status := h.authenticateRequest(r)
+		id, status := h.authenticateRequest(r)
 		if status != http.StatusOK {
 			w.WriteHeader(status)
 			return
-		}*/
-		w.WriteHeader(http.StatusNotImplemented)
+		}
+		rows, err := h.queryMessagesByUsr.Query(id)
+		if rows != nil {
+			defer rows.Close()
+		}
+		if err != nil {
+			log.Printf("message query with userid='%v' failed\n", id)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		sendMessages(rows, w)
 	case "/login":
 		query := r.URL.Query()
 		name := query.Get("name")
@@ -323,8 +339,11 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		http.SetCookie(w, tokenToCookie(tok, id))
 	case "/register":
-		// TODO: rate limit this hard
 		// TODO if current user count > 1000 return http.StatusInsufficientStorage
+		if h.newUsrLimiter.Block(trimmedIP) {
+			w.WriteHeader(http.StatusTooManyRequests)
+			return
+		}
 		query := r.URL.Query()
 		name := query.Get("name")
 		pass := query.Get("password")
@@ -417,7 +436,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// silly client this is not that kind of server
 		w.WriteHeader(http.StatusTeapot)
 	default:
-		log.Printf("bad path %v\n", path)
+		log.Printf("bad path %v by %v\n", path, r.RemoteAddr)
 		w.WriteHeader(http.StatusNotFound)
 	}
 }
@@ -430,6 +449,7 @@ func main() {
 	h, err := newHandler(string(name))
 	if err == nil {
 		server := &http.Server{
+			Addr:           "0.0.0.0:443",
 			Handler:        h,
 			ReadTimeout:    60 * time.Second,
 			WriteTimeout:   60 * time.Second,

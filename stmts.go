@@ -9,6 +9,7 @@ type handlerStmts struct {
 	createUsr *sql.Stmt
 	queryUsr *sql.Stmt
 	createMessage *sql.Stmt
+	eraseMessage *sql.Stmt
 	queryMessagesByRoom *sql.Stmt
 	queryMessagesByUsr *sql.Stmt
 	countMessagesFromUsr *sql.Stmt
@@ -26,6 +27,9 @@ func (h *handlerStmts) closeStmts() {
 	}
 	if h.createMessage != nil {
 		h.createMessage.Close()
+	}
+	if h.eraseMessage != nil {
+		h.eraseMessage.Close()
 	}
 	if h.queryMessagesByRoom != nil {
 		h.queryMessagesByRoom.Close()
@@ -62,6 +66,10 @@ func (h *handlerStmts) prepStmts(db *sql.DB) (err error) {
 		return
 	}
 	h.createMessage, err = db.Prepare("INSERT INTO messages (userid, room, x, y, template1, word1, conjunction, template2, word2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);")
+	if err != nil {
+		return
+	}
+	h.eraseMessage, err = db.Prepare("DELETE FROM messages WHERE id = ? AND userid = ?;")
 	if err != nil {
 		return
 	}
