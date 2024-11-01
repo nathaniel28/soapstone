@@ -1,7 +1,7 @@
 ## Project Soapstone
 A backend for orange guidance soapstone messages, made with Hollow Knight in mind.
 
-Being an open-source project means that you can also run my server of questionable quality! However, please don't do this publicly without talking to me first. The point of this whole project is to see funny messages in game, and if many people run the project, then there will be fewer messages per host. If my hosting is insufficient, I'd be happy to work something out with you.
+Being an open-source project means that you can also run my server of questionable quality! However, please don't do this publicly without talking to me first. The point of this whole project is to see funny messages in game, and if many people run the project, then there will be fewer messages per host. If the current hosting is insufficient, I'd be happy to work something out with you. I'm not opposed to someone else hosting it.
 
 ## API
 Please direct your traffic to 128.9.29.8:443\
