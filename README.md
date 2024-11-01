@@ -1,7 +1,7 @@
-## Project Soapstone
+# Project Soapstone
 A backend for orange guidance soapstone messages, made with Hollow Knight in mind.
 
-Being an open-source project means that you can also run my server of questionable quality! However, please don't do this publicly without talking to me first. The point of this whole project is to see funny messages in game, and if many people run the project, then there will be fewer messages per host. If the current hosting is insufficient, I'd be happy to work something out with you. I'm not opposed to someone else hosting it.
+Being an open-source project means that you can also run my server of questionable quality! However, please don't do this publicly without talking to me first. The point of this whole project is to see funny messages in game, and if many people run the project, then there will be fewer messages per host. If the current hosting is insufficient, I'd be happy to work something out with you; I'm not opposed to someone else hosting it.
 
 ## API
 Please direct your traffic to 128.9.29.8:443\
@@ -31,7 +31,7 @@ Please note! Certain numbers do not yet have meaning. Parameter room should be a
 
 Numbers are sent as numbers, not strings. Always little-endian. This means less parsing for you and less formatting for me: win-win!
 
-Arguments are passed from the client to the server by path parameters. This is because it's really easy to test out stuff by typing the url in a browser. This may change for certain requests in the future.
+Arguments are passed from the client to the server by path parameters. This is because it's way easier to test out stuff by typing the url in a browser then preparing a binary body and sending that off. This may change for certain requests in the future.
 
 All requests can return a generic 400 if a required parameter, header, or body is omitted. When it would be useful to the client, other 4xx errors are returned.
 
