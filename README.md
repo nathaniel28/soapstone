@@ -114,3 +114,5 @@ TODO
 
 ## A note for wise guys
 By design this server is quick to reach its maximum willing work capacity. The computer it's running on *could* handle a whole lot more traffic, but it does other things too, so this program is very considerate in terms of resource consumption. This means it's almost trivial to deny legitimate users service if you attack it. So please don't, not for the server's sake (which will simply refuse to work hard), but for other clients' sake.
+
+I'll implement an IP blacklist if it comes to it.
