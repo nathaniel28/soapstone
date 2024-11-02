@@ -115,4 +115,7 @@ TODO
 ## A note for wise guys
 By design this server is quick to reach its maximum willing work capacity. The computer it's running on *could* handle a whole lot more traffic, but it does other things too, so this program is very considerate in terms of resource consumption. This means it's almost trivial to deny legitimate users service if you attack it. So please don't, not for the server's sake (which will simply refuse to work hard), but for other clients' sake.
 
-I'll implement an IP blacklist if it comes to it.
+## Getting blacklisted
+Turns out, there are a bunch of bots on the internet and some of them go around testing every IP(v4) address for vulnerabilities to exploit. While harmless to the server, it's annoying. So, they go in a blacklist. Mostly these IPs are manually added from suspicious looking requests.
+
+Please contact me to take your IP off the blacklist if you got on it by mistake.

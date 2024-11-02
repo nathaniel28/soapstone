@@ -11,7 +11,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -21,8 +20,6 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 )
-
-const version = "0"
 
 type message struct {
 	id          uint32
@@ -51,6 +48,12 @@ type handler struct {
 	loginLimiter  Limiter
 	newUsrLimiter Limiter
 
+	ipBlacklist Blacklist
+
+	goodReqs CircularLog
+	badReqs  CircularLog
+	general  CircularLog
+
 	table []byte
 
 	tdiff time.Duration
@@ -58,6 +61,9 @@ type handler struct {
 
 func (h *handler) destroy() {
 	h.closeStmts()
+	h.goodReqs.Close()
+	h.badReqs.Close()
+	h.general.Close()
 	if h.db != nil {
 		h.db.Close()
 	}
@@ -87,6 +93,26 @@ func newHandler(name string) (res *handler, err error) {
 		return
 	}
 	h.tdiff = dbTime.Sub(serverTime)
+
+	err = h.general.Open(generalLogPath, generalLogSize)
+	if err != nil {
+		return
+	}
+	log.SetOutput(&h.general)
+	err = h.badReqs.Open(badReqsLogPath, badReqsLogSize)
+	if err != nil {
+		return
+	}
+	err = h.goodReqs.Open(goodReqsLogPath, goodReqsLogSize)
+	if err != nil {
+		return
+	}
+
+	err = h.ipBlacklist.FromFile(blacklistPath)
+	if err != nil {
+		h.general.Log.Printf("failed to load blacklist: %v\n", err)
+		err = nil
+	}
 
 	h.ipLimiter = Limiter{
 		MaxEntries: 2048,
@@ -126,8 +152,11 @@ func newHandler(name string) (res *handler, err error) {
 	return
 }
 
-func credentialsOK(name, pass string) bool {
-	return len(name) <= 64 && len(name) >= 3 && len(pass) <= 72 && len(pass) >= 8
+func getCredentials(r *http.Request) (string, string, bool) {
+	query := r.URL.Query()
+	name := query.Get("name")
+	pass := query.Get("password")
+	return name, pass, len(name) <= 64 && len(name) >= 3 && len(pass) <= 72 && len(pass) >= 8
 }
 
 func tokenToCookie(tok string, id uint32) *http.Cookie {
@@ -206,7 +235,7 @@ func (h *handler) authenticateRequest(r *http.Request) (userid uint32, status in
 	var exists int
 	err = h.getSession.QueryRow(id, tok).Scan(&exists)
 	if err != nil {
-		log.Printf("failed session lookup: %v\n", err)
+		h.general.Log.Printf("failed session lookup: %v\n", err)
 		return 0, http.StatusInternalServerError
 	}
 	if exists != 1 {
@@ -252,11 +281,29 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	trimmedIP := r.RemoteAddr[:pos]
 
-	if h.ipLimiter.Block(trimmedIP) {
-		w.WriteHeader(http.StatusTooManyRequests)
+	if h.ipBlacklist.Present(trimmedIP) {
+		w.WriteHeader(http.StatusForbidden)
+		h.general.Log.Printf("denied %v\n", r.RemoteAddr)
 		return
 	}
+
+	if h.ipLimiter.Block(trimmedIP) {
+		w.WriteHeader(http.StatusTooManyRequests)
+		h.general.Log.Printf("limited %v\n", r.RemoteAddr)
+		return
+	}
+
 	path := r.URL.EscapedPath()
+	// NOTE: make sure we never have legitimate paths this long!
+	if len(path) > 24 {
+		// definitely someone looking for a vulnerability
+		// one guy tried /vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php
+		h.ipBlacklist.Insert(trimmedIP)
+		h.general.Log.Printf("blacklisted %v due to suspicious query %v\n", trimmedIP, path)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	switch path {
 	case "/query":
 		// TODO clean up logic here
@@ -280,7 +327,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			defer rows.Close()
 		}
 		if err != nil {
-			log.Printf("message query with room='%v' age='%v' failed\n", room, age)
+			h.general.Log.Printf("message query with room='%v' age='%v' failed\n", room, age)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -296,21 +343,15 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			defer rows.Close()
 		}
 		if err != nil {
-			log.Printf("message query with userid='%v' failed\n", id)
+			h.general.Log.Printf("message query with userid='%v' failed\n", id)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		sendMessages(rows, w)
 	case "/login":
-		query := r.URL.Query()
-		name := query.Get("name")
-		pass := query.Get("password")
-		if !credentialsOK(name, pass) {
+		name, pass, ok := getCredentials(r)
+		if !ok {
 			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		if h.loginLimiter.Block(name) {
-			w.WriteHeader(http.StatusTooManyRequests)
 			return
 		}
 		var id uint32
@@ -320,6 +361,10 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			// TODO: figure out if it's actually our error
 			// it's probably not though
 			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if h.loginLimiter.Block(name) {
+			w.WriteHeader(http.StatusTooManyRequests)
 			return
 		}
 		err = bcrypt.CompareHashAndPassword(buf, []byte(pass))
@@ -333,7 +378,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		expire := time.Now().Add(h.tdiff + time.Hour * 1)
 		_, err = h.createSession.Exec(id, tok, expire)
 		if err != nil {
-			log.Printf("create session failed: %v\n", err)
+			h.general.Log.Printf("create session failed: %v\n", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -344,17 +389,15 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusTooManyRequests)
 			return
 		}
-		query := r.URL.Query()
-		name := query.Get("name")
-		pass := query.Get("password")
-		if !credentialsOK(name, pass) {
+		name, pass, ok := getCredentials(r)
+		if !ok {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		asBytes := []byte(pass)
 		hash, err := bcrypt.GenerateFromPassword(asBytes, 10)
 		if err != nil || len(hash) != 60 {
-			log.Printf("hash gen failed on %v: %v\n", asBytes, err)
+			h.general.Log.Printf("hash gen failed on %v: %v\n", asBytes, err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -369,12 +412,12 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				// someone has that name already
 				w.WriteHeader(http.StatusConflict)
 			} else {
-				log.Printf("create user failed: %v\n", err)
+				h.general.Log.Printf("create user failed: %v\n", err)
 				w.WriteHeader(http.StatusInternalServerError)
 			}
 			return
 		}
-		log.Printf("new user %v\n", name)
+		h.general.Log.Printf("new user %v\n", name)
 	case "/write":
 		query := r.URL.Query()
 		var err error
@@ -450,31 +493,21 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "/table":
 		w.Write(h.table)
 	case "/version":
-		w.Write([]byte(version))
+		err := binary.Write(w, binary.LittleEndian, version)
+		if err != nil {
+			h.general.Log.Printf("but how!? %v\n")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	case "/favicon.ico":
 		// silly client this is not that kind of server
 		w.WriteHeader(http.StatusTeapot)
+	case "/robots.txt":
+		w.Write([]byte("User-agent: *\nDisallow: /"))
 	default:
-		log.Printf("bad path %v by %v\n", path, r.RemoteAddr)
+		h.badReqs.Log.Printf("%v %v %v %v\n", r.RemoteAddr, r.Method, path, r.Header)
 		w.WriteHeader(http.StatusNotFound)
+		return
 	}
-}
-
-func main() {
-	name, err := os.ReadFile("dbname")
-	if err != nil {
-		log.Fatal(err)
-	}
-	h, err := newHandler(string(name))
-	if err == nil {
-		server := &http.Server{
-			Addr:           "0.0.0.0:443",
-			Handler:        h,
-			ReadTimeout:    60 * time.Second,
-			WriteTimeout:   60 * time.Second,
-			MaxHeaderBytes: 1 << 14,
-		}
-		err = server.ListenAndServeTLS("cert.pem", "key.pem")
-	}
-	log.Fatal(err)
+	h.goodReqs.Log.Printf("%v %v %v %v\n", r.RemoteAddr, r.Method, path, r.Header)
 }
