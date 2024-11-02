@@ -31,7 +31,7 @@ func main() {
 	if err == nil {
 		defer h.destroy()
 		server := &http.Server{
-			Addr:           ":443",
+			Addr:           "0.0.0.0:443",
 			Handler:        h,
 			ReadTimeout:    60 * time.Second,
 			WriteTimeout:   60 * time.Second,
