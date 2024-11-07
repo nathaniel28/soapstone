@@ -432,12 +432,13 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		room := qAs[uint16](&query, "room", &err)
+		no(int(room) >= len(rooms))
 		x := qAs[uint16](&query, "x", &err)
 		y := qAs[uint16](&query, "y", &err)
 		t1 := qAs[uint8](&query, "t1", &err)
-		no(int(t1) > len(templates))
+		no(int(t1) >= len(templates))
 		w1 := qAs[uint16](&query, "w1", &err)
-		no(int(w1) > len(words))
+		no(int(w1) >= len(words))
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -449,11 +450,11 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			c = ^uint8(0)
 		} else {
 			c, err = asUint[uint8](conjunctionStr)
-			no(int(c) > len(conjunctions))
+			no(int(c) >= len(conjunctions))
 			w2 = qAs[uint16](&query, "w2", &err)
-			no(int(w2) > len(words))
+			no(int(w2) >= len(words))
 			t2 = qAs[uint8](&query, "t2", &err)
-			no(int(t2) > len(templates))
+			no(int(t2) >= len(templates))
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
 				return
@@ -464,9 +465,22 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(status)
 			return
 		}
+		var msgCount int
+		err = h.countMessagesFromUsr.QueryRow(id).Scan(&msgCount)
+		if err != nil {
+			h.general.Log.Printf("count messages failed: %v\n", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		if msgCount >= maxMessagesPerUser {
+			w.WriteHeader(http.StatusConflict)
+			return
+		}
 		_, err = h.createMessage.Exec(id, room, x, y, t1, w1, c, t2, w2)
 		if err != nil {
+			h.general.Log.Printf("message write failed: %v\n", err)
 			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 	case "/erase":
 		query := r.URL.Query()

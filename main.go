@@ -18,6 +18,8 @@ const (
 	goodReqsLogSize = 262144
 	generalLogPath = "./log"
 	generalLogSize = 1048576
+
+	maxMessagesPerUser = 40
 )
 
 func main() {

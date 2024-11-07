@@ -82,6 +82,7 @@ NOTE: this request may eventually change to POST /write with the message in the 
     * 200: no further response; message posted successfully
     * 400: the message is incomplete, contains invalid identifiers, or an identifier could not be parsed
     * 401: the request was made without a token, or with an expired or invalid token; try logging in
+    * 409: The user already has the maximum number of message (40) saved.
 
 #### GET /erase
 NOTE: this request may eventually change to POST /erase with the id in the body
