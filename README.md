@@ -27,7 +27,7 @@ Some requests return a stream of messages in the body, which are defined as foll
 * A value of 255 for the conjunction means that the message only has one part (so ignore conjunction, template2, and word2 for that message).
 
 ### Requests
-Please note! Certain numbers do not yet have meaning. Parameter room should be a number to represent an in-game room, and parameters x and y should represent a position within this room. Since I don't know how Hollow Knight works, until someone defines them to me, they're pretty meaningless.
+Please note! Certain numbers do not yet have meaning. Parameters x and y should represent a position within this room, but I don't know exactly how it should be.
 
 Numbers are sent as numbers, not strings. Always little-endian. This means less parsing for you and less formatting for me: win-win!
 
@@ -103,7 +103,7 @@ NOTE: this request may eventually change to POST /mine with the id in the body
     * 200: the body will contains a little endian unsigned 32 bit integer representing the version of the server
 
 #### GET /table
-This table can be used to determine the numeric identifier for templates, conjunctions, and words. There are three sections to the returned body. The first section contains newline separated templates. The second section contains newline separated conjunctions. The third section contains newline separated words. Each section is separated by an empty line. The identifier for the nth item in a section is n.
+This table can be used to determine the numeric identifier for templates, conjunctions, and words. There are three sections to the returned body. The first section contains newline separated templates. The second section contains newline separated conjunctions. The third section contains newline separated words. Each section is separated by an empty line. The identifier for the nth item in a section is n. After reading in that, there is an empty line followed by a newline separated list of room names, with the position in the list equal to the numeric identifier you should use for the room.
 * Response:
     * 200: the body will contain newline separated strings
 
