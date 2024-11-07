@@ -117,7 +117,7 @@ func newHandler(name string) (res *handler, err error) {
 	h.ipLimiter = Limiter{
 		MaxEntries: 2048,
 		Burst:      20,
-		Reset:      60 * time.Second,
+		Reset:      20 * time.Second,
 	}
 
 	h.loginLimiter = Limiter{
