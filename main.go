@@ -7,9 +7,7 @@ import (
 	"time"
 )
 
-//3d80-dc1f
-
-const version uint32 = 0
+const version uint32 = 1
 
 const (
 	blacklistPath = "./blacklist"
@@ -38,6 +36,7 @@ func main() {
 			MaxHeaderBytes: 1 << 14,
 		}
 		// TODO drop root
+		// https://web.archive.org/web/20150915083011/http://www.opensource.apple.com/source/tcpdump/tcpdump-32/tcpdump/tcpdump.c
 		err = server.ListenAndServeTLS("cert.pem", "key.pem")
 		h.general.Log.Println(err)
 	}

@@ -357,366 +357,367 @@ var words = [...]string{
 	"may the flames guide thee",
 }
 
-/*
-var table = []byte(`@Templates
-%s ahead
-No %s ahead
-%s required ahead
-be wary of %s
-try %s
-Could this be a %s?
-If only I had a %s...
-visions of %s...
-Time for %s
-%s
-%s!
-%s?
-%s...
-Huh. It's a %s...
-praise the %s!
-Let there be %s
-Ahh, %s...
-@Conjunctions
-and then
-therefore
-in short
-or
-only
-by the way
-so to speak
-all the more
-,
-@Words
-#Creatures
-enemy
-monster
-mob enemy
-tough enemy
-critical foe
-Hollow
-pilgrim
-prisoner
-monstrosity
-skeleton
-ghost
-beast
-lizard
-bug
-grub
-crab
-dwarf
-giant
-demon
-dragon
-knight
-sellword
-warrior
-herald
-bandit
-assassin
-sorcerer
-pyromancer
-cleric
-deprived
-sniper
-duo
-trio
-you
-you bastard
-good fellow
-saint
-wretch
-charmer
-poor soul
-oddball
-nimble one
-laggard
-moneybags
-beggar
-miscreant
-liar
-fatty
-beanpole
-youth
-elder
-old codger
-old dear
-merchant
-artisan
-master
-sage
-champion
-Lord of Cinder
-king
-queen
-prince
-princess
-angel
-god
-friend
-ally
-spouse
-covenantor
-Phantom
-Dark Spirit
-#Objects
-bonfire
-ember
-fog wall
-lever
-contraption
-key
-trap
-torch
-door
-treasure
-chest
-something
-quite something
-rubbish
-filth
-weapon
-shield
-projectile
-armor
-item
-ring
-ore
-coal
-transposing kiln
-scroll
-umbral ash
-throne
-rite
-coffin
-cinder
-ash
-moon
-eye
-brew
-soup
-message
-bloodstain
-illusion
-#Techniques
-close-ranged battle
-ranged battle
-eliminating one at a Time
-luring it out
-beating to a pulp
-ambush
-pincer attack
-hitting them in one swoop
-duel-wielding
-stealth
-mimicry
-fleeing
-charging
-jumping off
-dashing through
-circling around
-trapping inside
-rescue
-Skill
-sorcery
-pyromancy
-miracles
-pure luck
-prudence
-brief respite
-play dead
-#Actions
-jog
-dash
-rolling
-backstepping
-jumping
-attacking
-jump attack
-dash attack
-counter attack
-stabbing in the back
-guard stun & stab
-plunging attack
-shield breaking
-blocking
-parrying
-locking-on
-no lock-on
-two-handing
-gesture
-control
-destroy
-#Geography
-boulder
-lava
-poison gas
-enemy horde
-forest
-swamp
-cave
-shortcut
-detour
-hidden path
-secret passage
-dead end
-labyrinth
-hole
-bright spot
-dark spot
-open area
-tight spot
-safe zone
-danger zone
-sniper spot
-hiding place
-illusory wall
-ladder
-lift
-gorgeous view
-looking away
-overconfidence
-slip-up
-oversight
-fatigue
-bad luck
-inattention
-loss of stamina
-chance encounter
-planned encounter
-#Orientation
-front
-back
-left
-right
-up
-down
-below
-above
-behind
-#Body parts
-head
-neck
-stomach
-back
-armor
-finger
-leg
-rear
-tail
-wings
-anywhere
-tongue
-right arm
-left arm
-thumb
-indexfinger
-longfinger
-ringfinger
-smallfinger
-right leg
-left leg
-right side
-left side
-pincer
-wheel
-core
-mount
-#Attribute
-regular
-strike
-thrust
-slash
-magic
-crystal
-fire
-chaos
-lightning
-blessing
-dark
-critical hits
-bleeding
-poison
-toxic
-frost
-curse
-equipment breakage
-#Concepts
-chance
-quagmire
-hint
-secret
-sleeptalk
-happiness
-misfortune
-life
-death
-demise
-joy
-fury
-agony
-sadness
-tears
-loyalty
-betrayal
-hope
-despair
-fear
-losing sanity
-victory
-defeat
-sacrifice
-light
-dark
-bravery
-confidence
-vigor
-revenge
-resignation
-overwhelming
-regret
-pointless
-man
-woman
-friendship
-love
-recklessness
-composure
-guts
-comfort
-silence
-deep
-dregs
-#Musings
-good luck
-fine work
-I did it!
-I've failed...
-here!
-not here!
-I can't take this...
-lonely...
-don't you dare!
-do it!
-look carefully
-listen carefully
-think carefully
-this place again?
-now the real fight begins
-you don't deserve this
-keep moving
-pull back
-give it up
-don't give up
-help me...
-impossible...
-bloody expensive...
-let me out of here...
-stay calm
-like a dream...
-seems familiar...
-are you ready?
-it'll happen to you too
-praise the Sun!
-may the flames guide thee`)
-*/
+var rooms = [...]string{
+	"Abyss_03",
+	"Abyss_04",
+	"Abyss_05",
+	"Abyss_06_Core",
+	"Abyss_08",
+	"Abyss_09",
+	"Abyss_10",
+	"Abyss_12",
+	"Abyss_15",
+	"Abyss_16",
+	"Abyss_17",
+	"Abyss_18",
+	"Abyss_19",
+	"Abyss_20",
+	"Abyss_21",
+	"Abyss_22",
+	"Abyss_Lighthouse_room",
+	"Crossroads_49b",
+	"Room_nailsmith",
+	"Ruins_Bathhouse",
+	"Ruins_Elevator",
+	"Ruins_House_01",
+	"Ruins_House_02",
+	"Ruins_House_03",
+	"Ruins1_01",
+	"Ruins1_02",
+	"Ruins1_03",
+	"Ruins1_04",
+	"Ruins1_05",
+	"Ruins1_05b",
+	"Ruins1_05c",
+	"Ruins1_06",
+	"Ruins1_09",
+	"Ruins1_17",
+	"Ruins1_18",
+	"Ruins1_23",
+	"Ruins1_24",
+	"Ruins1_25",
+	"Ruins1_27",
+	"Ruins1_28",
+	"Ruins1_29",
+	"Ruins1_30",
+	"Ruins1_31",
+	"Ruins1_31b",
+	"Ruins1_32",
+	"Ruins2_01",
+	"Ruins2_01_b",
+	"Ruins2_03",
+	"Ruins2_03b",
+	"Ruins2_04",
+	"Ruins2_05",
+	"Ruins2_06",
+	"Ruins2_07",
+	"Ruins2_08",
+	"Ruins2_09",
+	"Ruins2_10b",
+	"Ruins2_11",
+	"Ruins2_11_b",
+	"Ruins2_Watcher_Room",
+	"Mines_01",
+	"Mines_02",
+	"Mines_03",
+	"Mines_04",
+	"Mines_05",
+	"Mines_06",
+	"Mines_07",
+	"Mines_10",
+	"Mines_11",
+	"Mines_13",
+	"Mines_16",
+	"Mines_17",
+	"Mines_18",
+	"Mines_19",
+	"Mines_20",
+	"Mines_23",
+	"Mines_24",
+	"Mines_25",
+	"Mines_28",
+	"Mines_29",
+	"Mines_30",
+	"Mines_31",
+	"Mines_32",
+	"Mines_34",
+	"Mines_35",
+	"Mines_36",
+	"Mines_37",
+	"Abyss_03_b",
+	"Deepnest_01b",
+	"Deepnest_02",
+	"Deepnest_03",
+	"Deepnest_09",
+	"Deepnest_10",
+	"Deepnest_14",
+	"Deepnest_16",
+	"Deepnest_17",
+	"Deepnest_26",
+	"Deepnest_26b",
+	"Deepnest_30",
+	"Deepnest_31",
+	"Deepnest_32",
+	"Deepnest_33",
+	"Deepnest_34",
+	"Deepnest_35",
+	"Deepnest_36",
+	"Deepnest_37",
+	"Deepnest_38",
+	"Deepnest_39",
+	"Deepnest_40",
+	"Deepnest_41",
+	"Deepnest_42",
+	"Deepnest_44",
+	"Deepnest_45_v02",
+	"Deepnest_Spider_Town",
+	"Fungus2_25",
+	"Room_Mask_Maker",
+	"Room_spider_small",
+	"Grimm_Divine",
+	"Grimm_Main_Tent",
+	"Room_Bretta",
+	"Room_mapper",
+	"Room_Ouiji",
+	"Room_shop",
+	"Room_Town_Stag_Station",
+	"Town",
+	"Tutorial_01",
+	"Fungus3_01",
+	"Fungus3_02",
+	"Fungus3_03",
+	"Fungus3_24",
+	"Fungus3_25",
+	"Fungus3_25b",
+	"Fungus3_26",
+	"Fungus3_27",
+	"Fungus3_28",
+	"Fungus3_30",
+	"Fungus3_35",
+	"Fungus3_44",
+	"Fungus3_47",
+	"Fungus3_archive",
+	"Fungus3_archive_02",
+	"Room_Fungus_Shaman",
+	"Crossroads_01",
+	"Crossroads_02",
+	"Crossroads_03",
+	"Crossroads_04",
+	"Crossroads_05",
+	"Crossroads_06",
+	"Crossroads_07",
+	"Crossroads_08",
+	"Crossroads_09",
+	"Crossroads_10",
+	"Crossroads_11_alt",
+	"Crossroads_12",
+	"Crossroads_13",
+	"Crossroads_14",
+	"Crossroads_15",
+	"Crossroads_16",
+	"Crossroads_18",
+	"Crossroads_19",
+	"Crossroads_21",
+	"Crossroads_22",
+	"Crossroads_25",
+	"Crossroads_27",
+	"Crossroads_30",
+	"Crossroads_31",
+	"Crossroads_33",
+	"Crossroads_35",
+	"Crossroads_36",
+	"Crossroads_37",
+	"Crossroads_38",
+	"Crossroads_39",
+	"Crossroads_40",
+	"Crossroads_42",
+	"Crossroads_43",
+	"Crossroads_45",
+	"Crossroads_46",
+	"Crossroads_47",
+	"Crossroads_48",
+	"Crossroads_49",
+	"Crossroads_52",
+	"Crossroads_ShamanTemple",
+	"Mines_33",
+	"Room_Charm_Shop",
+	"Room_Mender_House",
+	"Room_ruinhouse",
+	"Room_temple",
+	"Deepnest_01",
+	"Fungus2_01",
+	"Fungus2_02",
+	"Fungus2_03",
+	"Fungus2_04",
+	"Fungus2_05",
+	"Fungus2_06",
+	"Fungus2_07",
+	"Fungus2_08",
+	"Fungus2_09",
+	"Fungus2_10",
+	"Fungus2_11",
+	"Fungus2_12",
+	"Fungus2_13",
+	"Fungus2_14",
+	"Fungus2_15",
+	"Fungus2_17",
+	"Fungus2_18",
+	"Fungus2_19",
+	"Fungus2_20",
+	"Fungus2_21",
+	"Fungus2_23",
+	"Fungus2_26",
+	"Fungus2_28",
+	"Fungus2_29",
+	"Fungus2_30",
+	"Fungus2_31",
+	"Fungus2_32",
+	"Fungus2_33",
+	"Fungus2_34",
+	"Fungus1_01",
+	"Fungus1_01b",
+	"Fungus1_02",
+	"Fungus1_03",
+	"Fungus1_04",
+	"Fungus1_05",
+	"Fungus1_06",
+	"Fungus1_07",
+	"Fungus1_08",
+	"Fungus1_09",
+	"Fungus1_10",
+	"Fungus1_11",
+	"Fungus1_12",
+	"Fungus1_13",
+	"Fungus1_14",
+	"Fungus1_15",
+	"Fungus1_16_alt",
+	"Fungus1_17",
+	"Fungus1_19",
+	"Fungus1_20_v02",
+	"Fungus1_21",
+	"Fungus1_22",
+	"Fungus1_25",
+	"Fungus1_26",
+	"Fungus1_29",
+	"Fungus1_30",
+	"Fungus1_31",
+	"Fungus1_32",
+	"Fungus1_34",
+	"Fungus1_35",
+	"Fungus1_36",
+	"Fungus1_37",
+	"Fungus1_Slug",
+	"Room_nailmaster_02",
+	"Room_Slug_Shrine",
+	"Cliffs_01",
+	"Cliffs_02",
+	"Cliffs_03",
+	"Cliffs_04",
+	"Cliffs_05",
+	"Cliffs_06",
+	"Fungus1_28",
+	"Room_nailmaster",
+	"Abyss_03_c",
+	"Deepnest_East_01",
+	"Deepnest_East_02",
+	"Deepnest_East_03",
+	"Deepnest_East_04",
+	"Deepnest_East_06",
+	"Deepnest_East_07",
+	"Deepnest_East_08",
+	"Deepnest_East_09",
+	"Deepnest_East_10",
+	"Deepnest_East_11",
+	"Deepnest_East_12",
+	"Deepnest_East_13",
+	"Deepnest_East_14",
+	"Deepnest_East_14b",
+	"Deepnest_East_15",
+	"Deepnest_East_16",
+	"Deepnest_East_17",
+	"Deepnest_East_18",
+	"Deepnest_East_Hornet",
+	"GG_Lurker",
+	"Hive_01",
+	"Hive_02",
+	"Hive_03",
+	"Hive_03_c",
+	"Hive_04",
+	"Hive_05",
+	"Room_Colosseum_01",
+	"Room_Colosseum_02",
+	"Room_Colosseum_Spectate",
+	"Room_nailmaster_03",
+	"Room_Wyrm",
+	"Deepnest_43",
+	"Fungus1_23",
+	"Fungus1_24",
+	"Fungus3_04",
+	"Fungus3_05",
+	"Fungus3_08",
+	"Fungus3_10",
+	"Fungus3_11",
+	"Fungus3_13",
+	"Fungus3_21",
+	"Fungus3_22",
+	"Fungus3_23",
+	"Fungus3_34",
+	"Fungus3_39",
+	"Fungus3_40",
+	"Fungus3_48",
+	"Fungus3_49",
+	"Fungus3_50",
+	"Room_Queen",
+	"Crossroads_46b",
+	"Crossroads_50",
+	"RestingGrounds_02",
+	"RestingGrounds_04",
+	"RestingGrounds_05",
+	"RestingGrounds_06",
+	"RestingGrounds_07",
+	"RestingGrounds_08",
+	"RestingGrounds_09",
+	"RestingGrounds_10",
+	"RestingGrounds_12",
+	"RestingGrounds_17",
+	"Room_Mansion",
+	"Ruins2_10",
+	"Abyss_01",
+	"Abyss_02",
+	"GG_Pipeway",
+	"GG_Waterways",
+	"Room_GG_Shortcut",
+	"Waterways_01",
+	"Waterways_02",
+	"Waterways_03",
+	"Waterways_04",
+	"Waterways_04b",
+	"Waterways_05",
+	"Waterways_06",
+	"Waterways_07",
+	"Waterways_08",
+	"Waterways_09",
+	"Waterways_12",
+	"Waterways_13",
+	"Waterways_14",
+	"Waterways_15",
+	"White_Palace_01",
+	"White_Palace_02",
+	"White_Palace_03_hub",
+	"White_Palace_04",
+	"White_Palace_05",
+	"White_Palace_06",
+	"White_Palace_07",
+	"White_Palace_08",
+	"White_Palace_09",
+	"White_Palace_11",
+	"White_Palace_12",
+	"White_Palace_13",
+	"White_Palace_14",
+	"White_Palace_15",
+	"White_Palace_16",
+	"White_Palace_17",
+	"White_Palace_18",
+	"White_Palace_19",
+	"White_Palace_20",
+}

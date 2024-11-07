@@ -146,6 +146,11 @@ func newHandler(name string) (res *handler, err error) {
 		b.WriteByte('\n')
 		b.WriteString(s)
 	}
+	b.WriteByte('\n')
+	for _, s := range rooms {
+		b.WriteByte('\n')
+		b.WriteString(s)
+	}
 	h.table = b.Bytes()
 
 	res = &h
@@ -499,11 +504,12 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+	case "/robots.txt":
+		w.Write([]byte("User-agent: *\nDisallow: /"))
 	case "/favicon.ico":
 		// silly client this is not that kind of server
 		w.WriteHeader(http.StatusTeapot)
-	case "/robots.txt":
-		w.Write([]byte("User-agent: *\nDisallow: /"))
+		return
 	default:
 		h.badReqs.Log.Printf("%v %v %v %v\n", r.RemoteAddr, r.Method, path, r.Header)
 		w.WriteHeader(http.StatusNotFound)

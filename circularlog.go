@@ -33,6 +33,10 @@ func (cl *CircularLog) Open(path string, size int) (err error) {
 }
 
 func (cl *CircularLog) Write(p []byte) (n int, err error) {
+	// TODO: use a fancier locking mechanism that only blocks if the part of
+	// the buffer you want to write to is in use
+	// pos would be made atomic, and I'd need some way of keeping track
+	// of the used positions
 	cl.lock.Lock()
 	n = len(p)
 	if n > len(cl.buf) {
