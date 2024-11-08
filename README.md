@@ -109,9 +109,15 @@ This table can be used to determine the numeric identifier for templates, conjun
     * 200: the body will contain newline separated strings
 
 #### GET /vote
-TODO
+You can vote only once on messages, and there is no way to undo a vote once it has been cast. You are permitted to vote on your own message.
+* Path parameters:
+    * id: the message id to vote on
+    * type: either "like" or "dislike"
 * Response:
-    * 501: I'm working on it!
+    * 200: the vote was successful
+    * 400: you provided an invalid id or type
+    * 401: the request was made without a token, or with an expired or invalid token; try logging in
+    * 409: you have already voted on this message
 
 ## A note for wise guys
 By design this server is quick to reach its maximum willing work capacity. The computer it's running on *could* handle a whole lot more traffic, but it does other things too, so this program is very considerate in terms of resource consumption. This means it's almost trivial to deny legitimate users service if you attack it. So please don't, not for the server's sake (which will simply refuse to work hard), but for other clients' sake.

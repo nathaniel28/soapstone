@@ -5,8 +5,9 @@ eraseMessage "DELETE FROM messages WHERE id = ? AND userid = ?;"
 queryMessagesByRoom "SELECT id, likes, dislikes, room, x, y, word1, word2, template1, template2, conjunction FROM messages WHERE room = ? AND birth >= ? LIMIT 4096;"
 queryMessagesByUsr "SELECT id, likes, dislikes, room, x, y, word1, word2, template1, template2, conjunction FROM messages WHERE userid = ?;"
 countMessagesFromUsr "SELECT COUNT(*) FROM messages WHERE userid = ?;"
-likeMessage
-dislikeMessage
+registerVote "INSERT INTO votes (messageid, voterid, type) VALUES (?, ?, ?);"
+incrLikeCount "UPDATE messages SET likes = likes + 1 WHERE id = ?;"
+incrDislikeCount "UPDATE messages SET dislikes = dislikes + 1 WHERE id = ?;"
 createSession "INSERT INTO sessions (userid, token, expire) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE token = VALUES (token), expire = VALUES (expire);"
 expireOldSessions "DELETE FROM sessions WHERE expire < NOW();"
 getSession "SELECT EXISTS(SELECT 1 FROM sessions WHERE userid = ? AND token = ?);"

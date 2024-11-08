@@ -13,6 +13,9 @@ type handlerStmts struct {
 	queryMessagesByRoom *sql.Stmt
 	queryMessagesByUsr *sql.Stmt
 	countMessagesFromUsr *sql.Stmt
+	registerVote *sql.Stmt
+	incrLikeCount *sql.Stmt
+	incrDislikeCount *sql.Stmt
 	createSession *sql.Stmt
 	expireOldSessions *sql.Stmt
 	getSession *sql.Stmt
@@ -39,6 +42,15 @@ func (h *handlerStmts) closeStmts() {
 	}
 	if h.countMessagesFromUsr != nil {
 		h.countMessagesFromUsr.Close()
+	}
+	if h.registerVote != nil {
+		h.registerVote.Close()
+	}
+	if h.incrLikeCount != nil {
+		h.incrLikeCount.Close()
+	}
+	if h.incrDislikeCount != nil {
+		h.incrDislikeCount.Close()
 	}
 	if h.createSession != nil {
 		h.createSession.Close()
@@ -82,6 +94,18 @@ func (h *handlerStmts) prepStmts(db *sql.DB) (err error) {
 		return
 	}
 	h.countMessagesFromUsr, err = db.Prepare("SELECT COUNT(*) FROM messages WHERE userid = ?;")
+	if err != nil {
+		return
+	}
+	h.registerVote, err = db.Prepare("INSERT INTO votes (messageid, voterid, type) VALUES (?, ?, ?);")
+	if err != nil {
+		return
+	}
+	h.incrLikeCount, err = db.Prepare("UPDATE messages SET likes = likes + 1 WHERE id = ?;")
+	if err != nil {
+		return
+	}
+	h.incrDislikeCount, err = db.Prepare("UPDATE messages SET dislikes = dislikes + 1 WHERE id = ?;")
 	if err != nil {
 		return
 	}

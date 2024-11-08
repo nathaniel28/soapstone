@@ -505,10 +505,51 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	case "/vote":
-		// TODO vote on a message
-		//tx, err := h.db.Begin()
-		//tx.Commit()
-		w.WriteHeader(http.StatusNotImplemented)
+		query := r.URL.Query()
+		msgId, err := asUint[uint32](query.Get("id"))
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		v := query.Get("type")
+		var voteType byte
+		switch v {
+		case "like":
+			voteType = 1
+		case "dislike":
+			voteType = 0
+		default:
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		id, status := h.authenticateRequest(r)
+		if status != http.StatusOK {
+			w.WriteHeader(status)
+			return
+		}
+		tx, err := h.db.Begin()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		_, err = h.registerVote.Exec(msgId, id, voteType)
+		if err != nil {
+			// TODO check if it's our fault
+			tx.Rollback()
+			w.WriteHeader(http.StatusConflict)
+			return
+		}
+		if voteType == 1 {
+			_, err = h.incrLikeCount.Exec(msgId)
+		} else {
+			_, err = h.incrDislikeCount.Exec(msgId)
+		}
+		if err != nil {
+			tx.Rollback()
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		tx.Commit()
 	case "/table":
 		w.Write(h.table)
 	case "/version":
