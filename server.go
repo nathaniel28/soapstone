@@ -305,7 +305,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// one guy tried /vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php
 		h.ipBlacklist.Insert(trimmedIP)
 		h.general.Log.Printf("blacklisted %v due to suspicious query %v\n", trimmedIP, path)
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -567,7 +567,8 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	default:
 		h.badReqs.Log.Printf("%v %v %v %v\n", r.RemoteAddr, r.Method, path, r.Header)
-		w.WriteHeader(http.StatusNotFound)
+		// hopefully this tells the client to stop bothering us
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	h.goodReqs.Log.Printf("%v %v %v %v\n", r.RemoteAddr, r.Method, path, r.Header)
